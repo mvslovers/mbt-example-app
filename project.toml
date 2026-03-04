@@ -1,0 +1,38 @@
+[project]
+name    = "exapp"
+version = "1.0.0"
+type    = "application"
+
+[mvs.build.datasets.punch]
+suffix  = "OBJECT"
+dsorg   = "PO"
+recfm   = "FB"
+lrecl   = 80
+blksize = 3120
+space   = ["TRK", 5, 2, 5]
+
+[mvs.build.datasets.ncalib]
+suffix  = "NCALIB"
+dsorg   = "PO"
+recfm   = "U"
+lrecl   = 0
+blksize = 32760
+space   = ["TRK", 5, 2, 5]
+
+[mvs.build.datasets.syslmod]
+suffix  = "LOAD"
+dsorg   = "PO"
+recfm   = "U"
+lrecl   = 0
+blksize = 32760
+space   = ["TRK", 5, 2, 5]
+
+[dependencies]
+"mvslovers/crent370" = ">=1.0.0"
+
+[link.module]
+name    = "EXAPP"
+options = ["LIST", "XREF", "LET"]
+
+[artifacts]
+mvs = true
