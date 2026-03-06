@@ -29,11 +29,14 @@ space = ["TRK", 5, 2, 5]
 
 [dependencies]
 "mvslovers/crent370" = ">=1.0.0"
-"mvslovers/mbt-example-lib" = ">=1.0.0"
+"mvslovers/mbt-example-lib" = "=1.0.1-dev"
 
 [link.module]
 name = "EXAPP"
 options = ["LIST", "XREF", "LET"]
+
+[link.module.dep_includes]
+"mvslovers/mbt-example-lib" = "*"
 
 [artifacts]
 mvs = true
