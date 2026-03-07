@@ -1,6 +1,6 @@
 [project]
-name = "exapp"
-version = "1.0.0-dev"
+name = "mvsinfoa"
+version = "2.0.0-dev"
 type = "application"
 
 [mvs.build.datasets.punch]
@@ -29,10 +29,10 @@ space = ["TRK", 5, 2, 5]
 
 [dependencies]
 "mvslovers/crent370" = ">=1.0.0"
-"mvslovers/mbt-example-lib" = "=1.0.1-dev"
+"mvslovers/mbt-example-lib" = ">=2.0.0-dev"
 
 [link.module]
-name = "EXAPP"
+name = "MVSINFOA"
 options = ["LIST", "XREF", "LET"]
 
 [link.module.dep_includes]
