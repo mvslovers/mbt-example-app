@@ -54,7 +54,7 @@ mbt-example-app/
 ├── Makefile              # 2-line mbt include
 ├── .env.example          # MVS connection template
 ├── src/
-│   └── exapp.c           # main program
+│   └── mvsinfoa.c        # main program
 └── mbt/                  # build system (git submodule)
 ```
 

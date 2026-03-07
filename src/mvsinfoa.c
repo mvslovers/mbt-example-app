@@ -1,4 +1,4 @@
-/* exapp.c — MVS system information report (batch program)
+/* mvsinfoa.c — MVS system information report (batch program)
 **
 ** Demonstrates using mbt-example-lib to query and display
 ** MVS system information from a batch job.

@@ -29,7 +29,7 @@ space = ["TRK", 5, 2, 5]
 
 [dependencies]
 "mvslovers/crent370" = ">=1.0.0"
-"mvslovers/mbt-example-lib" = ">=2.0.0-dev"
+"mvslovers/mbt-example-lib" = "=2.0.0-dev"
 
 [link.module]
 name = "MVSINFOA"
