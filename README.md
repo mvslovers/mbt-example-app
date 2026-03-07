@@ -13,11 +13,17 @@ The program produces a formatted MVS system information report including:
 ## Building
 
 ```sh
-cp .env.example .env        # edit with your MVS connection
+git clone --recurse-submodules https://github.com/mvslovers/mbt-example-app.git
+cd mbt-example-app
+cp .env.example .env        # enter your MVS connection details (host, port, credentials)
 make bootstrap               # download crent370 + mbt-example-lib
 make build                   # cross-compile and assemble on MVS
 make link                    # link the load module
 ```
+
+> **Note:** If `mbt-example-lib` has no published release yet, build and
+> package it first (`make package` in the lib directory). This installs
+> the artifacts to the local cache so `make bootstrap` can resolve them.
 
 ## Running
 
