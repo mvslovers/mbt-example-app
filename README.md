@@ -1,71 +1,66 @@
 # mbt-example-app
 
-Example batch application for the [mbt](https://github.com/mvslovers/mbt) build
-system, demonstrating how to build an MVS 3.8j application that depends on an
-external library.
+An example application for [MBT](https://github.com/mvslovers/mbt) (mbt):
+three main programs, one each in **C, COBOL and assembler**, built on the
+library [mbt-example-lib](https://github.com/mvslovers/mbt-example-lib)
+(`mvsinfo.a`), which is itself written in all three. Every program calls
+into the other two languages.
 
-The program produces a formatted MVS system information report including:
+| Module | Language | Calls |
+|---|---|---|
+| `CINFO` | C | C, assembler (`MIJOBN`, `MITIME`), COBOL (`MIFMTD`, `MIFMTN` through their C wrappers) |
+| `COBINFO` | COBOL | assembler (`MIJOBN`, `MITIME`), COBOL (`MIFMTD`, `MIFMTN`) |
+| `ASMINFO` | assembler | assembler (`MIJOBN`, `MITIME`), COBOL (`MIFMTD`); the result goes to the console with `WTO` |
 
-- Job name, system ID, and IPL date from MVS control blocks
-- Hex dump of the CVT (Communication Vector Table)
-- JES2 job queue listing
+```
+CINFO   job MVSINFOA on DEV1
+CINFO   IPL 2026.284, now 2026.284 173643
+CINFO    16,777,216  bytes in a 16 MB address space
+COBINFO job MVSINFOA today 2026.284
+ASMINFO job MVSINFOA today 2026.284
+```
 
-## Building
+## The call matrix
+
+The tests are named caller-2-callee, and their return code is the verdict
+(`mbt test --mvs` runs each one in batch and under TSO):
+
+| Test | Caller → callee |
+|---|---|
+| `C2COB` | C → COBOL |
+| `C2ASM` | C → assembler |
+| `ASM2COB` | assembler → COBOL |
+| `COB2ASM` | COBOL → assembler |
+| `COB2COB` | COBOL → COBOL, two COBOL programs in one load module |
+
+**COBOL → C and assembler → C** are missing on purpose. A C function
+expects its own stack in the caller's save area, which COBOL and plain
+assembler do not provide; LIBC/370 is designing a glue routine for that
+(libc370#502). The two tests follow once it is released.
+
+How the calls fit together is described in the library's README: C passes
+values, COBOL and the OS convention pass addresses with the last one
+flagged, and the library bridges the two.
+
+## Building and running
+
+You need MBT 3, the CC/370 toolchain and
+[cobc370](https://github.com/brazilofmux/cobc370) on `PATH` (or named in
+`MBT_COBC370`):
 
 ```sh
-git clone --recurse-submodules https://github.com/mvslovers/mbt-example-app.git
-cd mbt-example-app
-cp .env.example .env        # enter your MVS connection details (host, port, credentials)
-make bootstrap               # download crent370 + mbt-example-lib
-make build                   # cross-compile and assemble on MVS
-make link                    # link the load module
+mbt deps          # fetch mbt-example-lib from its GitHub release
+mbt build --all   # CINFO, COBINFO, ASMINFO
+mbt test --mvs    # the call matrix on the target
+mbt deploy        # into MVSINFOA.DEV.LINKLIB
+mbt run demo      # run the three programs and show their output
 ```
 
-> **Note:** If `mbt-example-lib` has no published release yet, build and
-> package it first (`make package` in the lib directory). This installs
-> the artifacts to the local cache so `make bootstrap` can resolve them.
+`mbt deps` stages the library under `.mbt/deps/`. Its `mvsinfo.h` reaches
+the C compiler and its `MIPARMS` copybook reaches cobc370 without any
+`-I` in [`mbt.toml`](mbt.toml), and the linker takes from `mvsinfo.a` only
+the members a program calls (autocall). `mbt run demo` is a few lines of
+Lua in [`mbt/init.lua`](mbt/init.lua).
 
-## Running
-
-Submit as a batch job on MVS:
-
-```jcl
-//MVSINFO  JOB (001),'SYSINFO',CLASS=A,MSGCLASS=H
-//STEP1    EXEC PGM=MVSINFOA
-//STEPLIB  DD DSN=your.load.library,DISP=SHR
-//SYSPRINT DD SYSOUT=*
-```
-
-## Key Concepts Demonstrated
-
-### Using a Non-Autocall Library
-
-The dependency `mbt-example-lib` uses `autocall = false` because its
-modules export multiple functions per member. This project declares
-which members to pull in:
-
-```toml
-[link.module.dep_includes]
-"mvslovers/mbt-example-lib" = "*"    # include all members
-```
-
-This generates explicit `INCLUDE NCALIB(member)` statements in the
-link JCL, ensuring all required symbols are resolved.
-
-### Project Structure
-
-```
-mbt-example-app/
-├── project.toml          # declares dependencies + link module
-├── Makefile              # 2-line mbt include
-├── .env.example          # MVS connection template
-├── src/
-│   └── mvsinfoa.c        # main program
-└── mbt/                  # build system (git submodule)
-```
-
-## See Also
-
-- [mbt-example-lib](https://github.com/mvslovers/mbt-example-lib) — the
-  library this application depends on
-- [mbt](https://github.com/mvslovers/mbt) — MVS Build Tools
+**Note:** the COBOL tests need mbt with mvslovers/mbt#257 (a SYSOUT DD in
+the test runner for COBOL's `DISPLAY`).

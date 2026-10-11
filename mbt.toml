@@ -1,0 +1,67 @@
+schema = 3
+
+[project]
+name = "mvsinfoa"
+version = "3.0.0-dev"
+
+[toolchain]
+mbt = "3.0"
+cc370 = "1.6.1"
+libc370 = "2.8.1"
+
+[dependencies]
+"mvslovers/mbt-example-lib" = ">=3.0.0-dev"
+
+[build]
+# cobc370 finds MIPARMS in the library's include/ by itself
+
+# Three main programs, one per language, each calling the other two
+# through the library. Autocall takes from mvsinfo.a only the members
+# a program calls.
+[module.CINFO]
+sources = ["src/cinfo.c"]
+rent = false        # it calls COBOL, which is not reentrant
+reus = false
+
+[module.COBINFO]
+sources = ["cobol/cobinfo.cbl"]
+entry = "COBINFO"
+rent = false
+reus = false
+
+[module.ASMINFO]
+sources = ["asm/asminfo.asm"]
+entry = "ASMINFO"
+startup = false
+rent = false
+reus = false
+
+# The call matrix: caller 2 callee, the return code is the verdict.
+# COB2C and ASM2C wait for LIBC/370's @@CCALL (libc370#502).
+[tests]
+rent = false
+reus = false
+
+[test.C2COB]
+sources = ["test/c/c2cob.c"]
+host = false
+
+[test.C2ASM]
+sources = ["test/c/c2asm.c"]
+host = false
+
+[test.ASM2COB]
+sources = ["test/asm/asm2cob.asm"]
+entry = "ASM2COB"
+startup = false
+host = false
+
+[test.COB2ASM]
+sources = ["test/cobol/cob2asm.cbl"]
+entry = "COB2ASM"
+host = false
+
+[test.COB2COB]
+sources = ["test/cobol/cob2cob.cbl"]
+entry = "COB2COB"
+host = false

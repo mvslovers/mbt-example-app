@@ -1,0 +1,20 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. COB2COB.
+      *    COBOL calls COBOL (MIFMTD, MIFMTN).  RC 0 = passed.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+           COPY MIPARMS.
+       PROCEDURE DIVISION.
+       MAIN-PARA.
+           MOVE 0126284 TO MI-DATE.
+           CALL 'MIFMTD' USING MI-DATE MI-DATE-TEXT.
+           MOVE -1234567 TO MI-NUM.
+           CALL 'MIFMTN' USING MI-NUM MI-NUM-TEXT.
+           IF MI-DATE-TEXT = '2026.284'
+                   AND MI-NUM-TEXT = '  1,234,567-'
+               DISPLAY 'COB2COB PASS ' MI-DATE-TEXT ' ' MI-NUM-TEXT
+               MOVE 0 TO RETURN-CODE
+           ELSE
+               DISPLAY 'COB2COB FAIL ' MI-DATE-TEXT ' ' MI-NUM-TEXT
+               MOVE 8 TO RETURN-CODE.
+           STOP RUN.
