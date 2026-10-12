@@ -34,6 +34,7 @@ The tests are named caller-2-callee, and their return code is the verdict
 | `COB2COB` | COBOL → COBOL, two COBOL programs in one load module |
 | `COB2C` | COBOL → C |
 | `ASM2C` | assembler → C |
+| `COBM2C` | COBOL main → C, with no C main at all |
 
 **COBOL and assembler reach C through a stub.** A C function expects its
 stack in the caller's save area, which COBOL and plain assembler do not
@@ -46,9 +47,13 @@ CCFMT    CCALL CFMT
 
 COBOL then calls `CALL 'CCFMT' USING ...`, assembler `L 15,=V(CCFMT)` and
 `BALR 14,15`, and the C function `CFMT` receives the addresses of the
-arguments. `@@CCALL` needs a C program on the task, so in both tests the
-main program is C, which calls COBOL or assembler, which calls C back. A
-COBOL or assembler main without C ends with U3101.
+arguments. In `COB2C` and `ASM2C` the main program is C, which calls COBOL
+or assembler, which calls C back.
+
+`COBM2C` is a COBOL main program with no C main. Since LIBC/370 2.10.0 the
+first call through a stub builds the C environment, and later calls find
+it. COBOL ends it with `CALL 'CCTERM'` before `STOP RUN`; without that,
+what C wrote to `stdout` is lost.
 
 How the calls fit together is described in the library's README: C passes
 values, COBOL and the OS convention pass addresses with the last one
