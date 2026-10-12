@@ -69,7 +69,6 @@ host = false
 
 [test.COB2C]
 sources = ["test/c/cob2c.c", "test/cobol/cobtoc.cbl", "test/asm/ccfmt.asm"]
-entry = "@@CRT0"    # a C main: the C start-up, not a PROGRAM-ID
 host = false
 
 [test.ASM2C]
