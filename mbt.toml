@@ -7,7 +7,7 @@ version = "3.0.0-dev"
 [toolchain]
 mbt = "3.0"
 cc370 = "1.6.1"
-libc370 = "2.9.0"   # @@CCALL, for COB2C and ASM2C
+libc370 = "2.10.0"  # @@CCALL; 2.10: also for a main without C
 
 [dependencies]
 "mvslovers/mbt-example-lib" = ">=3.0.0-dev"
@@ -38,7 +38,8 @@ reus = false
 
 # The call matrix: caller 2 callee, the return code is the verdict.
 # COBOL and assembler reach C through a CCALL stub and LIBC/370's
-# @@CCALL, which needs a C program on the task: there the main is C.
+# @@CCALL. COB2C and ASM2C have a C main; COBM2C is a COBOL main
+# without any C main, which ends the C environment with CCTERM.
 [tests]
 rent = false
 reus = false
@@ -73,4 +74,9 @@ host = false
 
 [test.ASM2C]
 sources = ["test/c/asm2c.c", "test/asm/asmtoc.asm"]
+host = false
+
+[test.COBM2C]
+sources = ["test/cobol/cobm2c.cbl", "test/c/cedit.c", "test/asm/ccedit.asm"]
+entry = "COBM2C"
 host = false
